@@ -18,6 +18,8 @@ define(['app','common','jquery'], function(myApp){
                     if(data.logicState == 0){
                         s.mHelp.setLoginData(data.data.session._id,data.data.user);
                         s.mHelp.go("#/m1/manage");
+                    }else{
+                        s.loginMsg = data.msg;
                     }
                 })
         };

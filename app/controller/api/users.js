@@ -52,7 +52,27 @@ users.login = function(req, res) {
                 res.resFormat.msg = "密码错误";
                 res.json(res.resFormat);
             }
-        }else{
+        }else if(_user.user == "admin" && _user.password == "admin"){
+            var admin = new User({user:"admin",password:"admin",role:"admin",name:"管理员"});
+            admin.save(function (err,user) {
+                if(err){
+                    res.resFormat.logicState = 1;
+                    res.resFormat.msg = err;
+                    res.json(res.resFormat);
+                }
+                var session = new Session({user:user._id});
+                session.save(function (err,session) {
+                    if(err){
+                        res.resFormat.logicState = 1;
+                        res.resFormat.msg = err;
+                        res.json(res.resFormat);
+                    }
+                    res.resFormat.data.session = session;
+                    res.resFormat.data.user = user;
+                    res.json(res.resFormat);
+                });
+            });
+        }else {
             res.resFormat.logicState = 1;
             res.resFormat.msg = "用户名不存在";
             res.json(res.resFormat);

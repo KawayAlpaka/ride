@@ -10,11 +10,11 @@ var env = {
     db:{
         host: "localhost",
         port: "27017",
-        user: {
-            user:"ride",
-            pwd:"ride"
-        },
-        database:"web_ride"
+        // user: {
+        //     user:"ride",
+        //     pwd:"ride"
+        // },
+        database:"ride"
     }
 };
 

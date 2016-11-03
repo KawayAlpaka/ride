@@ -63,8 +63,8 @@ users.login = function(req, res) {
                 var session = new Session({user:user._id});
                 session.save(function (err,session) {
                     if(err){
-                        res.resFormat.logicState = 1;
-                        res.resFormat.msg = err;
+                        res.resFormat.logicState = 500;
+                        res.resFormat.data = err;
                         res.json(res.resFormat);
                     }
                     res.resFormat.data.session = session;

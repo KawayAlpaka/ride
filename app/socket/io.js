@@ -93,7 +93,7 @@ module.exports.createServer = function (server) {
                     var projectPath = basePath + pNode._id;
                     fileHelper.createProjectFiles(pNode , projectPath , data.options , function () {
                         listenHelper.start(function (address) {
-                            exec('pybot --outputdir '+projectPath+" "+"--listener D:\\TestRunnerAgent.py:"+address.port+":False "+projectPath + "/" + pNode.name,{},function(error,stdout,stderr){
+                            exec('pybot --outputdir '+projectPath+" "+"--listener "+process.cwd()+"/app/lib/py/TestRunnerAgent.py"+":"+address.port+":False "+projectPath + "/" + pNode.name,{},function(error,stdout,stderr){
                                 if(error) {
                                     console.info('stderr : '+stderr);
                                 }

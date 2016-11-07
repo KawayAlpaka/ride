@@ -3,6 +3,7 @@ var _ = require('underscore');
 var exec = require('child_process').exec;
 var fileHelper = require('../helper/file_helper');
 var listenHelper = require('../helper/listen_helper');
+var systemSettingHelper = require('../helper/system_setting_helper');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var RobotNode = mongoose.model('RobotNode');
@@ -85,7 +86,7 @@ module.exports.createServer = function (server) {
         socket.on('debug', function (data) {
             console.log("启动调试");
             var nodeId = data.node;
-            var basePath = 'D:/debug/';
+            var basePath = systemSettingHelper.settings.debugPath;
             RobotNode.findOne({_id: nodeId}, function (err, robotNode) {
                 if (robotNode) {
                     var pNode = robotNode;

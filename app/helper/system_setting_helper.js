@@ -2,9 +2,15 @@
 var mongoose = require('mongoose');
 var SystemSetting = mongoose.model('SystemSetting');
 
+// var settings = {
+//     runPath:"D:/test/",
+//     uploadPath:"D:/web_ride/upload/projects/",
+//     debugPath:"D:/debug/"
+// };
 var settings = {
-    runPath:"D:/test/",
-    uploadPath:"D:/web_ride/upload/projects/"
+    runPath: process.cwd() + "/temp/run/",
+    uploadPath: process.cwd() + "/temp/upload/",
+    debugPath: process.cwd() + "/temp/debug/"
 };
 
 var refreshOne = function (dbKey,ramKey) {
@@ -23,6 +29,7 @@ var systemSettingHelper = {
     refresh:function () {
         refreshOne("runPath","runPath");
         refreshOne("uploadPath","uploadPath");
+        refreshOne("debugPath","debugPath");
     }
 };
 

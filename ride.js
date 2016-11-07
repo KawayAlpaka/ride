@@ -28,7 +28,7 @@ mongoose.connection.on('connected', function () {
     var routerApi = require('./app/router/api');
 
 
-    app.use(express.static('public'));
+    app.use(express.static('www'));
     app.use(cookieParser());
     app.use(bodyParser.json({limit: '1mb'}));  //body-parser 解析json格式数据
     app.use(bodyParser.urlencoded({            //此项必须在 bodyParser.json 下面,为参数编码

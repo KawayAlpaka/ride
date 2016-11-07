@@ -229,12 +229,18 @@ var getFileContent = function (node,debugOptions,cb) {
 fileHelper.createProjectFiles = function (pNode,projectPath,debugOptions,cb) {
     var removeOldFiles = function () {
         var deferred = Q.defer();
-        fs.remove(projectPath, function (err) {
+        fs.ensureDir(projectPath, function(err) {
             if (err) {
-                console.log(err);
+                cb(err);
                 return;
             }
-            deferred.resolve();
+            fs.remove(projectPath, function (err) {
+                if (err) {
+                    cb(err);
+                    return;
+                }
+                deferred.resolve();
+            });
         });
         return deferred.promise;
     };

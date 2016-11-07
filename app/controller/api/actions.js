@@ -19,9 +19,17 @@ actions.createProjectFiles = function (req, res) {
     RobotNode.findOne({_id: nodeId}, function (err, robotNode) {
         if (robotNode) {
             var pNode = robotNode;
-            var projectPath = systemSettingHelper.settings.runPath + pNode._id;
-            fileHelper.createProjectFiles(pNode, projectPath,null, function () {
-                res.json(res.resFormat);
+            var projectPath = systemSettingHelper.settings.runPath + req.currentUser.user + "/" + pNode._id;
+
+            fileHelper.createProjectFiles(pNode, projectPath,null, function (err) {
+                if(err){
+                    res.resFormat.data = err;
+                    res.resFormat.logicState = 1;
+                    res.resFormat.msg = "创建项目文件时错误";
+                    res.json(res.resFormat);
+                }else{
+                    res.json(res.resFormat);
+                }
             });
         } else {
             res.resFormat.logicState = 1;
@@ -40,33 +48,20 @@ actions.downloadProjectFiles = function (req, res) {
     RobotNode.findOne({_id: nodeId}, function (err, robotNode) {
         if (robotNode) {
             var pNode = robotNode;
-            var projectPath = systemSettingHelper.settings.runPath + pNode._id;
-            fileHelper.createProjectFiles(pNode, projectPath,null, function () {
-                console.log("finish");
-                var path = projectPath+"/"+pNode.name;
-                var output = fs.createWriteStream(path+".zip");
-                var archive = archiver('zip');
-
-                archive.on('error', function(err){
-                    throw err;
-                });
-                console.log(path);
-                archive.pipe(output);
-                archive.bulk([
-                    {
-                        src: ['**'],
-                        // dest: mainItem.path + '/',
-                        cwd: path,
-                        expand: true
-                    }
-                ]);
-                archive.finalize();
-                output.on('close', function () {
-                    console.log("close");
-                    res.download(path+".zip");
-                    // return cb(null, `Success`);
-                });
-                console.log("11");
+            var projectPath = systemSettingHelper.settings.runPath + req.currentUser.user + "/" + pNode._id;
+            fileHelper.createProjectFiles(pNode, projectPath,null, function (err) {
+                if(err){
+                    res.resFormat.data = err;
+                    res.resFormat.logicState = 1;
+                    res.resFormat.msg = "创建项目文件时错误";
+                    res.json(res.resFormat);
+                }else{
+                    var path = projectPath+"/"+pNode.name;
+                    zipHelper.zip(path,path+".zip",function () {
+                        console.log("zip finish");
+                        res.download(path+".zip");
+                    });
+                }
             });
         } else {
             res.resFormat.logicState = 1;
@@ -81,7 +76,7 @@ actions.runProject = function (req, res) {
     RobotNode.findOne({_id: nodeId}, function (err, robotNode) {
         if (robotNode) {
             var pNode = robotNode;
-            var projectPath = systemSettingHelper.settings.runPath + pNode._id;
+            var projectPath = systemSettingHelper.settings.runPath + req.currentUser.user + "/"  + pNode._id;
             fileHelper.createProjectFiles(pNode, projectPath,null, function () {
                 console.log("文件生成完成");
                 exec('pybot --outputdir '+projectPath+" "+projectPath + "/" + pNode.name,function(error,stdout,stderr){
@@ -106,7 +101,7 @@ actions.runProject = function (req, res) {
 };
 
 
-var uploadProject = multer({dest: 'D:/web_ride/upload/projects'});
+var uploadProject = multer({dest: systemSettingHelper.settings.uploadPath});
 actions.importProject = [uploadProject.fields([
     {name: 'file'}
 ]),function (req, res) {

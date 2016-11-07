@@ -8,7 +8,7 @@ module.exports.unzip = function (zipPath,unzipPath,cb) {
     readStream.pipe(unzip.Extract({ path: unzipPath })).on('close', cb);
 };
 
-module.exports.zip = function (inputPath,outputPath,successCb) {
+module.exports.zip = function (inputPath,outputPath,cb) {
     var path = inputPath;
     var output = fs.createWriteStream(outputPath);
     var archive = archiver('zip');
@@ -16,7 +16,6 @@ module.exports.zip = function (inputPath,outputPath,successCb) {
     archive.on('error', function(err){
         throw err;
     });
-    console.log(path);
     archive.pipe(output);
     archive.bulk([
         {
@@ -25,8 +24,7 @@ module.exports.zip = function (inputPath,outputPath,successCb) {
             cwd: path,
             expand: true
         }
-        
     ]);
     archive.finalize();
-    output.on('close', successCb );
+    output.on('close', cb );
 };

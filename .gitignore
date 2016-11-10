@@ -2,3 +2,4 @@
 node_modules
 temp
 app/lib/py/*.pyc
+npm-debug.log

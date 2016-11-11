@@ -35,18 +35,26 @@ users.login = function(req, res) {
         }
         if(user){
             if(user.password == _user.password){
-                var session = new Session({user:user._id});
-                session.save(function (err,session) {
+
+                Session.remove({user:user._id},function (err) {
                     if(err){
                         res.resFormat.logicState = 1;
                         res.resFormat.msg = err;
                         res.json(res.resFormat);
+                    }else{
+                        var session = new Session({user:user._id});
+                        session.save(function (err,session) {
+                            if(err){
+                                res.resFormat.logicState = 1;
+                                res.resFormat.msg = err;
+                                res.json(res.resFormat);
+                            }
+                            res.resFormat.data.session = session;
+                            res.resFormat.data.user = user;
+                            res.json(res.resFormat);
+                        });
                     }
-                    res.resFormat.data.session = session;
-                    res.resFormat.data.user = user;
-                    res.json(res.resFormat);
                 });
-
             }else{
                 res.resFormat.logicState = 1;
                 res.resFormat.msg = "密码错误";

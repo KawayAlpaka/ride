@@ -67,10 +67,11 @@ router.get('/projects/my', api.users.requireLogin, api.projects.myProjects);
 router.get('/projects/my/:relate', api.users.requireLogin, api.projects.myRelateProjects);
 router.post('/projects', api.users.requireLogin, api.projects.create);
 router.put('/projects', api.users.requireLogin, api.projects.update);
-router.get('/projects/new', api.projects.new);
-router.get('/projects/:id', api.projects.get);
-router.get('/projects/:id/users/:relate', api.projects.getUsers);
-router.post('/projects/:id/users/:relate', api.projects.createUser);
+router.get('/projects/new', api.users.requireLogin, api.projects.new);
+router.get('/projects/:id', api.users.requireLogin, api.projects.get);
+router.get('/projects/:id/users/:relate', api.users.requireLogin, api.projects.getUsers);
+router.post('/projects/:id/users/:relate', api.users.requireLogin, api.projects.createUser);
+router.delete('/projects/:id/project_users/:project_user_id', api.users.requireLogin, api.projects.delUser);
 router.delete('/projects/:id', api.users.requireLogin, api.projects.del);
 
 router.get('/debug_options', api.users.requireLogin, api.debugOptions.list);

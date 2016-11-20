@@ -129,6 +129,22 @@ projects.createUser = function (req, res) {
             }
         });
 };
+projects.delUser = function (req, res) {
+    var projectId = req.params.id;
+    var projectUserId = req.params.project_user_id;
+    // var user = req.body.user;
+    ProjectUser.remove({_id:projectUserId},function (err,result) {
+        if(err){
+            res.resFormat.data = err;
+            res.resFormat.msg = "remove error";
+            res.json(res.resFormat);
+        }else{
+            res.resFormat.data = result;
+            res.resFormat.msg = "remove success";
+            res.json(res.resFormat);
+        }
+    });
+};
 
 
 module.exports = projects;

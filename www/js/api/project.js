@@ -57,6 +57,13 @@ define([], function () {
             data : data
         });
     };
+    api.delUser = function (projectId,projectUser) {
+        return mHttp({
+            url : '/api/projects/'+projectId+"/project_users/"+projectUser._id,
+            method:'DELETE',
+            type : 'json'
+        });
+    };
     api.update = function (data) {
         return mHttp({
             url : '/api/projects/',

@@ -22,12 +22,19 @@ define(['app','common','WebUploader'], function(myApp,common,WebUploader){
         getUsers("guest");
         
         s.memberUser = "";
-        s.createUser = function (relate,user) {
-            s.api.project.createUser(projectId,relate,{user:user})
+        s.createUser = function (relate,userName) {
+            s.api.project.createUser(projectId,relate,{user:userName})
                 .success(function (data) {
                     var fUpRelate = common.strHelp.firstUpper(relate);
                     // s.createMemberMsg = data.msg;
                     s["create"+fUpRelate+"Msg"] = data.msg;
+                    getUsers(relate);
+                });
+        };
+
+        s.delUser = function (relate,projectUser) {
+            s.api.project.delUser(projectId,projectUser)
+                .success(function (data) {
                     getUsers(relate);
                 });
         };

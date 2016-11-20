@@ -28,21 +28,26 @@
         </div>
     </div>
 
-
-    <div ng-bind="fileName"></div>
-    <div id="uploader" class="wu-example">
-        <!--用来存放文件信息-->
-        <div id="thelist" class="uploader-list"></div>
-        <div class="btns">
-            <div id="picker">选择文件</div>
-            <button id="ctlBtn" class="btn btn-default">开始上传</button>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>导入项目</h4>
+        </div>
+        <div class="panel-body">
+            <div ng-bind="fileName"></div>
+            <div id="uploader" class="wu-example">
+                <!--用来存放文件信息-->
+                <div id="thelist" class="uploader-list"></div>
+                <div class="btns">
+                    <div id="picker">选择文件</div>
+                    <button id="ctlBtn" class="btn btn-default">开始导入</button>
+                </div>
+            </div>
         </div>
     </div>
 
-
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h4>项目成员</h4>
+            <h4>Contributors</h4>
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-hover table-striped">
@@ -90,7 +95,7 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h4>Guest</h4>
+            <h4>Guests</h4>
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-hover table-striped">

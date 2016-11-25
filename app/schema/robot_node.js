@@ -78,11 +78,11 @@ var robotNodeSchema = new Schema({
     meta: {
         createAt: {
             type: Date,
-            default: Date.now()
+            default: Date.now
         },
         updateAt: {
             type: Date,
-            default: Date.now()
+            default: Date.now
         }
     }
 });

@@ -76,7 +76,4 @@ mongoose.connection.on('connected', function () {
             console.log("dose not set net.protocol");
             break;
     }
-    // // seed
-    // var seed = require("./config/seed");
-    // seed.start();
 });

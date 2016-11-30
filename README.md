@@ -42,3 +42,5 @@ node ride
 3、访问Ride
 
 [http://localhost:3030/](http://localhost:3030/)
+
+默认管理员账号:admin 密码:admin

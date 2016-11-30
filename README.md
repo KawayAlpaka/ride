@@ -44,3 +44,5 @@ node ride
 [http://localhost:3030/](http://localhost:3030/)
 
 默认管理员账号:admin 密码:admin
+
+作者邮箱:my917@qq.com

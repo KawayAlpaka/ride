@@ -22,7 +22,9 @@ projects.myRelateProjects = function(req, res) {
         .exec(function (err, projectUsers) {
             var _pIds = [];
             projectUsers.forEach(function (projectUser) {
-                _pIds.push(projectUser.project._id);
+                if(projectUser.project){
+                    _pIds.push(projectUser.project._id);
+                }
             });
             Project.find({_id:{$in:_pIds}},function (err, projects) {
                 res.resFormat.data = projects;

@@ -42,6 +42,13 @@ define([], function () {
             data : data
         });
     };
+    api.del = function (id) {
+        return mHttp({
+            url : '/api/robot_nodes/'+id,
+            method:'DELETE',
+            type : 'json'
+        });
+    };
     api.update = function (id,data) {
         return mHttp({
             url : '/api/robot_nodes/'+id,

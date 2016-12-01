@@ -5,6 +5,22 @@ define(['app','common','jquery'], function(myApp,common,$){
 
         s.nodeTree = {};
 
+        //通过ID查询Node，递归
+        s.nodeTree.findById = function (_id) {
+            return s.nodeTree.find(s.nodeTree.node,_id);
+        };
+        s.nodeTree.find = function (node,_id) {
+            var result = null;
+            if(node._id == _id){
+                result = node;
+            }else if(node.children && node.children.length > 0){
+                node.children.forEach(function (node) {
+                    result = s.nodeTree.find(node,_id);
+                });
+            }
+            return result;
+        };
+
         s.nodeTree.node = s.model.RobotNode.createNew();
         s.nodeTree.node.fn.findById(projectId)
             .success(function () {
@@ -243,14 +259,15 @@ define(['app','common','jquery'], function(myApp,common,$){
             rightClick:function (node,$event) {
                 $event.stopPropagation();
                 selectNode(node);
+                s.setM1NodeTree(s.nodeTree);
                 s.setRightClickNode(node);
-                s.setRightClickNodeType("node");
+                s.setRightClickElementType("node");
                 s.setContextMenuPoint($event.clientX,$event.clientY);
                 s.setShowContextMenu(true);
             }
         };
 
-        ////不采用右键删除方案
+        ////不采用右键删除导入资源的方案
         // s.rightClickImport = function (editingNode,iImport,index,$event) {
         //     $event.stopPropagation();
         //     s.setRightClickNode(iImport);

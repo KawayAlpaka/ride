@@ -52,6 +52,7 @@ robotNodesRouter.get('', api.robotNodes.list);
 robotNodesRouter.post('', api.robotNodes.create);
 robotNodesRouter.post('/find', api.robotNodes.find);
 robotNodesRouter.get('/:id', api.robotNodes.findById);
+robotNodesRouter.delete('/:id', api.robotNodes.del);
 robotNodesRouter.get('/:id/children', api.robotNodes.findChildren);
 robotNodesRouter.patch('/:id', api.robotNodes.update);
 robotNodesRouter.get('/:id/parent_list', api.robotNodes.parentList);

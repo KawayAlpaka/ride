@@ -16,10 +16,13 @@ define(['app', 'controller/m1/home', 'controller/m1/workspace', 'controller/m1/m
             s.editingNode = node;
             mIo.currentNode(s.editingNode._id);
         };
+        s.setM1NodeTree = function (nodeTree) {
+            s.nodeTree = nodeTree;
+        };
         s.setRightClickNode = function (node) {
             s.rightClickNode = node;
         };
-        s.setRightClickNodeType = function (type) {
+        s.setRightClickElementType = function (type) {
             s.rightClickNodeType = type;
         };
 
@@ -43,28 +46,37 @@ define(['app', 'controller/m1/home', 'controller/m1/workspace', 'controller/m1/m
 
                 switch (s.rightClickNodeType) {
                     case "node":
-                        if (action == "Refresh") {
-                            console.log(s.selectedNode);
-                            s.selectedNode.fn.pull();
-                            s.selectedNode.fn.getChildren();
-                            break;
-                        } else {
-                            var modalOption = {
-                                action: action,
-                                close: function (data) {
-                                    data.parent = s.selectedNode._id;
-                                    s.api.robotNode.create(data)
-                                        .success(function () {
-                                            s.selectedNode.fn.getChildren();
-                                        });
-                                },
-                                dismiss: function (data) {
-                                    console.log(data);
-                                }
-                            };
-                            component.inputModal(modalOption);
-                            break;
+                        switch(action){
+                            case "Refresh":
+                                s.selectedNode.fn.pull();
+                                s.selectedNode.fn.getChildren();
+                                break;
+                            case "Delete":
+                                //删除操作
+                                s.selectedNode.fn.del()
+                                    .success(function (data) {
+                                        var parentNode = s.nodeTree.findById(s.selectedNode.parent);
+                                        parentNode.fn.getChildren();
+                                    });
+                                break;
+                            default:
+                                var modalOption = {
+                                    action: action,
+                                    close: function (data) {
+                                        data.parent = s.selectedNode._id;
+                                        s.api.robotNode.create(data)
+                                            .success(function () {
+                                                s.selectedNode.fn.getChildren();
+                                            });
+                                    },
+                                    dismiss: function (data) {
+                                        console.log(data);
+                                    }
+                                };
+                                component.inputModal(modalOption);
+                                break;
                         }
+                        break;
                     case "import":
                         if (action == "Delete") {
                             //

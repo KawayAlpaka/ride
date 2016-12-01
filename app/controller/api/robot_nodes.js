@@ -14,7 +14,6 @@ robotNodes.list = function (req, res) {
 };
 robotNodes.create = function (req, res) {
     var robotNode = new RobotNode(req.body);
-    console.log(robotNode);
     robotNode.save(function (err, robotNode) {
         if (err) {
             console.log(err)
@@ -22,6 +21,19 @@ robotNodes.create = function (req, res) {
             res.resFormat.data = robotNode;
             res.json(res.resFormat);
         }
+    });
+};
+robotNodes.del = function (req, res) {
+    var nodeId = req.params.id;
+    RobotNode.remove({_id:nodeId},function (err,result) {
+        if (err) {
+            res.resFormat.msg = "error";
+            res.resFormat.data = err;
+        } else {
+            res.resFormat.msg = "success";
+            res.resFormat.data = result;
+        }
+        res.json(res.resFormat);
     });
 };
 robotNodes.find = function (req, res) {

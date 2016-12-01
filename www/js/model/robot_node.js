@@ -16,9 +16,21 @@ define(['jquery'],function($) {
             //数据操作
             model.fn = {};
             model.fn.update = function(json){
-                console.log(json);
                 var func = function (resolve, reject) {
                     return model.C.api.robotNode.update(model._id,json)
+                        .success(function (data) {
+                            resolve(data);
+                        })
+                        .error(function (data) {
+                            reject(data);
+                        });
+                };
+                return model.C.promise(func);
+            };
+
+            model.fn.del = function(){
+                var func = function (resolve, reject) {
+                    return model.C.api.robotNode.del(model._id)
                         .success(function (data) {
                             resolve(data);
                         })
@@ -37,6 +49,8 @@ define(['jquery'],function($) {
             model.fn.set = function(json){
                 $.extend(model,json);
             };
+
+
 
             //可执行操作判断
             model.fn.canNewCase = function(){
@@ -89,6 +103,8 @@ define(['jquery'],function($) {
                             data.data.forEach(function (json) {
                                 var child = obj.createNew();
                                 child.fn.set(json);
+                                // 双向链表在angular中会报错，没有找到解决办法
+                                // child.parentNode = model;
                                 model.children.push(child);
                             });
                             resolve(model);

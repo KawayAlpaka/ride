@@ -1,4 +1,4 @@
-define(['app','socket','env'], function (myApp,io,env) {
+define(['app','socket','env','common'], function (myApp,io,env,common) {
     myApp.factory('mIo', ['$rootScope',function ($rootScope) {
         var mIo = {};
         var socket;
@@ -12,8 +12,13 @@ define(['app','socket','env'], function (myApp,io,env) {
             $rootScope.socket = socket;
             $rootScope.count = {};
 
+            socket.on('connect', function() {
+                console.log("connect");
+                mIo.currentSession();
+            });
             socket.on('reconnect', function() {
                 console.log("重新连接到服务器");
+                mIo.currentSession();
             });
             socket.on('disconnect', function() {
                 console.log("disconnect");
@@ -57,6 +62,10 @@ define(['app','socket','env'], function (myApp,io,env) {
         };
         mIo.debug = function (nodeId,options) {
             socket.emit('debug', { node: nodeId ,options:options });
+        };
+        mIo.currentSession = function () {
+            var session = common.cookieHelp.getCookie("mSession");
+            socket.emit('currentSession', { session: session });
         };
 
         return mIo;

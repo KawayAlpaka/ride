@@ -155,6 +155,10 @@ define(['app', 'common','socket'], function (myApp, common,io) {
             // console.log( common.strHelp.firstUpper("awefawe") );
             // console.log( common.strHelp.firstUpper("你好1fawefawe") );
 
+            // console.log( common.strHelp.space2_("你好1fawefawe") );
+            // console.log( common.strHelp.space2_("你好 1fa wefawe ") );
+            // console.log( common.strHelp.space2_(" 你好 1fawef awe ") );
+
             s.tab = "component";
             s.setTab = function (str) {
                 s.tab = str;

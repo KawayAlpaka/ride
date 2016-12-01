@@ -1,6 +1,7 @@
 var socketIo = require('socket.io');
 var _ = require('underscore');
 var exec = require('child_process').exec;
+var common = require('../../www/js/common');
 var fileHelper = require('../helper/file_helper');
 var listenHelper = require('../helper/listen_helper');
 var systemSettingHelper = require('../helper/system_setting_helper');
@@ -16,6 +17,23 @@ var findSocket = function (socket) {
     return connections.find(function (socketObj) {
         return socketObj.socket == socket;
     })
+};
+var getCurrentUser = function (socket,cb) {
+    var socketObj = findSocket(socket);
+    if(socketObj && socketObj.session != null ){
+
+        Session.find({_id: socketObj.session})
+            .populate({
+                path: 'user'
+            })
+            .exec(function (err, session) {
+                console.log(session);
+                cb(err,session[0].user)
+            });
+    }else {
+        cb("session不存在");
+    }
+
 };
 var sendToAllAboutCount = function () {
     connections.forEach(function(socketObj){
@@ -85,43 +103,58 @@ module.exports.createServer = function (server) {
         });
         socket.on('debug', function (data) {
             console.log("启动调试");
-            var nodeId = data.node;
-            var basePath = systemSettingHelper.settings.debugPath;
-            RobotNode.findOne({_id: nodeId}, function (err, robotNode) {
-                if (robotNode) {
-                    var pNode = robotNode;
-                    var projectPath = basePath + pNode._id;
-                    fileHelper.createProjectFiles(pNode , projectPath , data.options , function () {
-                        listenHelper.start(function (address) {
-                            exec('pybot --outputdir '+projectPath+" "+"--listener "+process.cwd()+"/app/lib/py/TestRunnerAgent.py"+":"+address.port+":False "+projectPath + "/" + pNode.name,{},function(error,stdout,stderr){
-                                if(error) {
-                                    console.info('stderr : '+stderr);
-                                }
-                                if(stdout.length >1){
-                                    socket.emit('debugResult', { result: stdout });
-                                } else {
-                                    // console.log('you don\'t offer args');
-                                }
-                            });
-                        },function (data) {
-                            // console.log(data);
-                            switch (data[0]){
-                                case "start_test":
-                                    socket.emit('debugProcess', { result:"Starting test: " + data[1][1].longname });
-                                    break;
-                                case "end_test":
-                                    socket.emit('debugProcess', { result:"Ending test:   " + data[1][1].longname });
-                                    break;
-                                case "log_message":
-                                    socket.emit('debugProcess', { result:data[1][0].timestamp + " : " + data[1][0].level + " : "+ data[1][0].message });
-                                    break;
-                                default:
-                            }
-                        });
+            getCurrentUser(socket,function (err,currentUser) {
+                if(err){
+                    //不处理
+                    console.log(err);
+                }else{
 
+                    console.log(currentUser);
+
+
+                    var nodeId = data.node;
+                    var basePath = systemSettingHelper.settings.debugPath;
+                    RobotNode.findOne({_id: nodeId}, function (err, robotNode) {
+                        if (robotNode) {
+                            var pNode = robotNode;
+                            var projectPath = basePath + common.strHelp.space2_(currentUser.name) + "/" +  pNode._id;
+                            fileHelper.createProjectFiles(pNode , projectPath , data.options , function () {
+                                listenHelper.start(function (address) {
+                                    var commadLineStr = 'pybot --outputdir '+projectPath+" "+"--listener "+process.cwd()+"/app/lib/py/TestRunnerAgent.py"+":"+address.port+":False "+projectPath + "/" + common.strHelp.space2_(pNode.name);
+                                    console.log(commadLineStr);
+                                    exec(commadLineStr,{},function(error,stdout,stderr){
+                                        if(error) {
+                                            console.info('stderr : '+stderr);
+                                        }
+                                        if(stdout.length >1){
+                                            socket.emit('debugResult', { result: stdout });
+                                        } else {
+                                            // console.log('you don\'t offer args');
+                                        }
+                                    });
+                                },function (data) {
+                                    // console.log(data);
+                                    switch (data[0]){
+                                        case "start_test":
+                                            socket.emit('debugProcess', { result:"Starting test: " + data[1][1].longname });
+                                            break;
+                                        case "end_test":
+                                            socket.emit('debugProcess', { result:"Ending test:   " + data[1][1].longname });
+                                            break;
+                                        case "log_message":
+                                            socket.emit('debugProcess', { result:data[1][0].timestamp + " : " + data[1][0].level + " : "+ data[1][0].message });
+                                            break;
+                                        default:
+                                    }
+                                });
+
+                            });
+                        } else {
+                        }
                     });
-                } else {
+
                 }
+
             });
         });
         socket.on('c-mSession', function (data) {
@@ -133,6 +166,15 @@ module.exports.createServer = function (server) {
                     connections[index].session = session;
                     socket.emit('s-user', { user: session.user });
                 });
+            }
+        });
+
+        socket.on('currentSession', function (data) {
+            if(data.session){
+                var index = connections.findIndex(function (connection) {
+                    return connection.socket == socket;
+                });
+                connections[index].session = data.session;
             }
         });
 

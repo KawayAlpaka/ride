@@ -122,7 +122,6 @@ var getFileContent = function (node,debugOptions,cb) {
             content += "\r\n";
         }
 
-
         //children 信息
         node.children(function (err,children) {
             if(err){
@@ -262,7 +261,7 @@ fileHelper.createProjectFiles = function (pNode,projectPath,debugOptions,cb) {
 
     var createProject = function (data) {
         var deferred = Q.defer();
-        var path = data.path + "/" +  data.node.name;
+        var path = data.path + "/" + common.strHelp.space2_(data.node.name);
         fs.mkdir(path, 0666, function (err) {
             if (err) {
                 console.log(err);
@@ -290,7 +289,7 @@ fileHelper.createProjectFiles = function (pNode,projectPath,debugOptions,cb) {
 
     var dealDir = function (data,child,cb) {
         //创建目录
-        var path = data.path + "/" + child.name;
+        var path = data.path + "/" + common.strHelp.space2_(child.name);
         fs.mkdir(path, 0666, function (err) {
             if (err) {
                 console.log(err);
@@ -332,11 +331,11 @@ fileHelper.createProjectFiles = function (pNode,projectPath,debugOptions,cb) {
                     }
                 });
             }else if(child.fileType == "file"){
-                var fileFullName = data.path + '/' + child.name + '.txt';
+                var fileFullName = data.path + '/' + common.strHelp.space2_(child.name) + '.txt';
                 console.log(fileFullName);
                 getFileContent(child,debugOptions,function (content) {
-                    console.log("content:");
-                    console.log(content);
+                    // console.log("content:");
+                    // console.log(content);
                     fs.writeFile(fileFullName, content , {flag: 'w'}, function (err) {
                         if (err) {
                             console.error(err);

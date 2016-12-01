@@ -65,6 +65,18 @@
             }
         }
     };
+    common.strHelp.space2_ = function (str) {
+        return str.replace(/ /g,"_");
+    };
+
+    common.cookieHelp = {};
+    common.cookieHelp.getCookie = function(name) {
+        var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+        if(arr=document.cookie.match(reg))
+            return unescape(arr[2]);
+        else
+            return null;
+    };
 
     common.arrHelp = {};
     common.arrHelp.fill = function (array,count,mDefault) {

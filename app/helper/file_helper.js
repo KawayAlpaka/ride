@@ -639,9 +639,9 @@ var walkDir =  function(path,node) {
 
                                     // 判断是套件还是资源
                                     if(_.contains(arr,"*** Test Cases ***")){
-                                        fileNode = new RobotNode({name:item,type:"suite",fileType:"file",fileFormat:"txt",parent:node._id});
+                                        fileNode = new RobotNode({name:item.replace(".txt",""),type:"suite",fileType:"file",fileFormat:"txt",parent:node._id});
                                     }else{
-                                        fileNode = new RobotNode({name:item,type:"resource",fileType:"file",fileFormat:"txt",parent:node._id});
+                                        fileNode = new RobotNode({name:item.replace(".txt",""),type:"resource",fileType:"file",fileFormat:"txt",parent:node._id});
                                     }
 
                                     fileNode.children = [];

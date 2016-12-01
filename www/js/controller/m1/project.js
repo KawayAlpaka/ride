@@ -67,6 +67,11 @@ define(['app','common','WebUploader'], function(myApp,common,WebUploader){
         uploader.on( 'uploadSuccess', function( file,response  ) {
             console.log(response);
             s.project = response.data;
+            if(response.logicState == 0){
+                s.importProjectMsg = "导入成功";
+            }else{
+                s.importProjectMsg = "导入错误";
+            }
             s.$apply();
         });
 

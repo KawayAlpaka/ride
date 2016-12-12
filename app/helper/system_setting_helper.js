@@ -10,7 +10,8 @@ var SystemSetting = mongoose.model('SystemSetting');
 var settings = {
     runPath: process.cwd() + "/temp/run/",
     uploadPath: process.cwd() + "/temp/upload/",
-    debugPath: process.cwd() + "/temp/debug/"
+    debugPath: process.cwd() + "/temp/debug/",
+    outputPath: process.cwd() + "/temp/output/"
 };
 
 var refreshOne = function (dbKey,ramKey) {
@@ -30,6 +31,7 @@ var systemSettingHelper = {
         refreshOne("runPath","runPath");
         refreshOne("uploadPath","uploadPath");
         refreshOne("debugPath","debugPath");
+        refreshOne("outputPath","outputPath");
     }
 };
 

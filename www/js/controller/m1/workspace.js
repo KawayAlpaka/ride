@@ -207,6 +207,16 @@ define(['app','common','jquery'], function(myApp,common,$){
         s.removeRow = function (rows, index) {
             rows.splice(index,1);
         };
+        s.commentRow = function (row) {
+            row.cells.unshift({
+                text:"Comment"
+            });
+        };
+        s.uncommentRow = function (row) {
+            if(row.cells[0] && row.cells[0].text == "Comment"){
+                row.cells.splice(0,1)
+            }
+        };
 
         s.addRow = function (rows) {
             rows.push({

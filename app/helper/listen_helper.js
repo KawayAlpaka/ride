@@ -2,9 +2,7 @@ var net = require('net');
 
 var start = function (cbOnListen,cbOnData) {
     var server = net.createServer();
-    var sockets = [];
     server.on('connection', function(socket) {
-        sockets.push(socket);
         socket.on('data', function(data) {
             var str = data.toString();
             try{
@@ -22,7 +20,7 @@ var start = function (cbOnListen,cbOnData) {
                     }
                 });
             }catch(err) {
-                console.log(str);
+                console.log('err:'+str);
             }
 
         });
@@ -32,17 +30,22 @@ var start = function (cbOnListen,cbOnData) {
             server.close();
         });
         socket.on('close',function (e) {
-            console.log('close:');
+            console.log('socket on close');
             console.log(e);
-            sockets.splice(sockets.indexOf(socket), 1); // 删除数组中的制定元素。这是 JS 基本功哦~
         });
         socket.on('end', function() {
-            console.log('end:');
-            // sockets.splice(sockets.indexOf(socket), 1); // 删除数组中的制定元素。这是 JS 基本功哦~
+            console.log('socket on end');
         });
     }).on('error', function (err) {
         console.log(err);
         throw err;
+    });
+
+    server.on("close",function () {
+        console.log("server on close");
+    });
+    server.on("error",function () {
+        console.log("server on error");
     });
 
     server.listen(function () {

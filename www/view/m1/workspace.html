@@ -175,6 +175,8 @@
                     <button ng-click="removeCell(row.cells)">-</button>
                     <button ng-click="insertRow(editingNode.form.rows,$index)">++</button>
                     <button ng-click="removeRow(editingNode.form.rows,$index)">--</button>
+                    <button ng-click="commentRow(row)">#</button>
+                    <button ng-click="uncommentRow(row)">!#</button>
                 </div>
                 <div>
                     <button ng-click="addRow(editingNode.form.rows)">+</button>

@@ -9,6 +9,7 @@ var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var RobotNode = mongoose.model('RobotNode');
 var Session = mongoose.model('Session');
+var uuidV4 = require('uuid/v4');
 
 var io;
 var connections = [];
@@ -109,9 +110,7 @@ module.exports.createServer = function (server) {
                     console.log(err);
                 }else{
 
-                    console.log(currentUser);
-
-
+                    // console.log(currentUser);
                     var nodeId = data.node;
                     var basePath = systemSettingHelper.settings.debugPath;
                     RobotNode.findOne({_id: nodeId}, function (err, robotNode) {
@@ -120,16 +119,20 @@ module.exports.createServer = function (server) {
                             var projectPath = basePath + common.strHelp.space2_(currentUser.name) + "/" +  pNode._id;
                             fileHelper.createProjectFiles(pNode , projectPath , data.options , function () {
                                 listenHelper.start(function (address) {
-                                    var commadLineStr = 'pybot --outputdir '+projectPath+" "+"--listener "+process.cwd()+"/app/lib/py/TestRunnerAgent.py"+":"+address.port+":False "+projectPath + "/" + common.strHelp.space2_(pNode.name);
+                                    var outputPath = systemSettingHelper.settings.outputPath + uuidV4().substring(0,8);
+                                    var commadLineStr = 'pybot --outputdir ' + outputPath + " " + "--listener " + process.cwd() + "/app/lib/py/TestRunnerAgent.py" + ":" + address.port + ":False " + projectPath + "/" + common.strHelp.space2_(pNode.name);
                                     console.log(commadLineStr);
                                     exec(commadLineStr,{},function(error,stdout,stderr){
                                         if(error) {
                                             console.info('stderr : '+stderr);
+                                            socket.emit('debugResult', { result: stdout });
                                         }
                                         if(stdout.length >1){
+                                            console.log('stdout:' + stdout);
                                             socket.emit('debugResult', { result: stdout });
-                                        } else {
-                                            // console.log('you don\'t offer args');
+                                        } else if(stderr.length > 0) {
+                                            console.log('stderr:' + stderr);
+                                            socket.emit('debugResult', { result: stderr });
                                         }
                                     });
                                 },function (data) {

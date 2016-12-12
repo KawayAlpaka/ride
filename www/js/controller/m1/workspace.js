@@ -199,14 +199,23 @@ define(['app','common','jquery'], function(myApp,common,$){
             cells.pop();
         };
 
+        s.insertRow = function (rows, index) {
+            rows.splice(index,0,{
+                cells:[]
+            });
+        };
+        s.removeRow = function (rows, index) {
+            rows.splice(index,1);
+        };
+
         s.addRow = function (rows) {
             rows.push({
                 cells:[]
             });
         };
-        s.removeRow = function (rows) {
-            rows.pop();
-        };
+        // s.removeRow = function (rows) {
+        //     rows.pop();
+        // };
 
         s.saveForm = function (node) {
             node.fn.update({form:node.form});

@@ -6,6 +6,7 @@ var fileHelper = require('../../helper/file_helper');
 var zipHelper = require('../../helper/zip_helper');
 var systemSettingHelper = require('../../helper/system_setting_helper');
 var multer = require('multer');
+var uuidV4 = require('uuid/v4');
 
 var RobotNode = mongoose.model('RobotNode');
 var Project = mongoose.model('Project');
@@ -79,13 +80,12 @@ actions.runProject = function (req, res) {
             var projectPath = systemSettingHelper.settings.runPath + req.currentUser.user + "/"  + pNode._id;
             fileHelper.createProjectFiles(pNode, projectPath,null, function () {
                 console.log("文件生成完成");
-                exec('pybot --outputdir '+projectPath+" "+projectPath + "/" + pNode.name,function(error,stdout,stderr){
+                var outputPath = systemSettingHelper.settings.outputPath + uuidV4().substring(0,8);
+                var commadLineStr = 'pybot --outputdir ' + outputPath + " " + projectPath + "/" + common.strHelp.space2_(pNode.name);
+                console.log(commadLineStr);
+                exec(commadLineStr, function (error, stdout, stderr) {
                     console.log("执行完成");
-                    // if(stdout.length >1){
-                    //     console.log('you offer args:',stdout);
-                    // } else {
-                    //     console.log('you don\'t offer args');
-                    // }
+                    console.log(arguments);
                     if(error) {
                         console.info('stderr : '+stderr);
                     }

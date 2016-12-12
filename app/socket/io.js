@@ -118,11 +118,12 @@ module.exports.createServer = function (server) {
                             var pNode = robotNode;
                             var projectPath = basePath + common.strHelp.space2_(currentUser.name) + "/" +  pNode._id;
                             fileHelper.createProjectFiles(pNode , projectPath , data.options , function () {
+                                var outputPath = systemSettingHelper.settings.outputPath + uuidV4().substring(0,8);
                                 listenHelper.start(function (address) {
-                                    var outputPath = systemSettingHelper.settings.outputPath + uuidV4().substring(0,8);
                                     var commadLineStr = 'pybot --outputdir ' + outputPath + " " + "--listener " + process.cwd() + "/app/lib/py/TestRunnerAgent.py" + ":" + address.port + ":False " + projectPath + "/" + common.strHelp.space2_(pNode.name);
                                     console.log(commadLineStr);
                                     exec(commadLineStr,{},function(error,stdout,stderr){
+                                        console.log(arguments);
                                         if(error) {
                                             console.info('stderr : '+stderr);
                                             socket.emit('debugResult', { result: stdout });
@@ -136,7 +137,6 @@ module.exports.createServer = function (server) {
                                         }
                                     });
                                 },function (data) {
-                                    // console.log(data);
                                     switch (data[0]){
                                         case "start_test":
                                             socket.emit('debugProcess', { result:"Starting test: " + data[1][1].longname });
@@ -146,6 +146,9 @@ module.exports.createServer = function (server) {
                                             break;
                                         case "log_message":
                                             socket.emit('debugProcess', { result:data[1][0].timestamp + " : " + data[1][0].level + " : "+ data[1][0].message });
+                                            break;
+                                        case "close":
+                                            socket.emit('debugResult', {result: "测试完成，报告地址：" + outputPath + "/report.html"});
                                             break;
                                         default:
                                     }

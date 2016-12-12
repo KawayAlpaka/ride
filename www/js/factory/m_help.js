@@ -1,5 +1,5 @@
 define(['app','common','env'], function (myApp,common,env) {
-    myApp.factory('mHelp', ['$cookieStore','$cookies','$rootScope','$location',function ($cookieStore,$cookies,$rootScope,$location) {
+    myApp.factory('mHelp', ['$cookieStore','$cookies','$rootScope','$location','mIo',function ($cookieStore,$cookies,$rootScope,$location,mIo) {
         var mHelp = {};
         mHelp.isLogin = function () {
             return common.strHelp.isNotEmptyStr($cookies.get("mSession"));
@@ -44,6 +44,7 @@ define(['app','common','env'], function (myApp,common,env) {
             expires.setDate(expires.getDate() + 30);
             $cookies.put('mSession', sessionId , {'expires': expires.toUTCString()});
             mHelp.setCurrentUser(user);
+            mIo.currentSession();
         };
         
         return mHelp;

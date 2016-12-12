@@ -298,6 +298,7 @@ define(['app','common','jquery'], function(myApp,common,$){
         s.debug.run = function () {
             s.debug.process = [];
             s.debug.result = [];
+            mIo.currentSession();
             mIo.debug(projectId,_.filter(s.debug.options,function (option) {
                 return option.ck == true;
             }));

@@ -24,6 +24,13 @@ define(['app','socket','env','common'], function (myApp,io,env,common) {
                 console.log("disconnect");
             });
 
+            socket.on('mError', function (data) {
+                console.log(data);
+            });
+            socket.on('mWarn', function (data) {
+                console.log(data);
+            });
+            
             socket.on('currentProjectCount', function (data) {
                 console.log(data);
                 $rootScope.count.currentProjectCount = data.count;

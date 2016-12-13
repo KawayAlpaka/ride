@@ -20,6 +20,13 @@ define([], function () {
             type : 'json'
         });
     };
+    api.getFileContent = function (id) {
+        return mHttp({
+            url : '/api/actions/getFileContent/'+id,
+            method:'GET',
+            type : 'json'
+        });
+    };
 
     return api;
 });

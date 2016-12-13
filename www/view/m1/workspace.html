@@ -5,8 +5,20 @@
     <div class="work-panel">
         <div class="work-panel-nav">
             <div class="nav-item" ng-class="{active:currentPanel == 'edit'}" ng-click="setCurrentPanel('edit')">Edit</div>
+            <div class="nav-item" ng-class="{active:currentPanel == 'text_edit'}" ng-click="setCurrentPanel('text_edit')">Text Edit</div>
             <div class="nav-item" ng-class="{active:currentPanel == 'run'}" ng-click="setCurrentPanel('run')">Run</div>
         </div>
+
+        <div class="text-edit-panel" ng-show="currentPanel == 'text_edit'">
+            <div>
+                <button type="button" class="btn btn-success" ng-click="refreshFileContent(editingNode)" ng-disabled="editingNode.fileType != 'file'" >refresh</button>
+                <span ng-if="editingNode.fileType != 'file'">请选择一个Suite或Resource</span>
+            </div>
+            <div>
+                <textarea class="file-content" data-ng-model="editingNode.fileContent" readonly></textarea>
+            </div>
+        </div>
+
         <div class="run-panel" ng-show="currentPanel == 'run'">
             <div>
                 <button class="btn btn-success btn-sm" type="button" ng-click="debug.run()">运行调试</button>

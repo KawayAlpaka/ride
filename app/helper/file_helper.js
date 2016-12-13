@@ -224,6 +224,8 @@ var getFileContent = function (node,debugOptions,cb) {
     }
 };
 
+fileHelper.getFileContent = getFileContent;
+
 //生成文件代码
 fileHelper.createProjectFiles = function (pNode,projectPath,debugOptions,cb) {
     var removeOldFiles = function () {

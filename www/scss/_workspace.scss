@@ -12,7 +12,12 @@
       color: white;
     }
   }
-
+  .text-edit-panel{
+    .file-content{
+      min-height: 600px;
+      width: 100%;
+    }
+  }
   .work-panel{
     width: 80%;
     border: solid 1px #DDDDDD;

@@ -136,4 +136,27 @@ actions.importProject = [uploadProject.fields([
     }
 }];
 
+actions.getFileContent = function (req, res) {
+    var nodeId = req.params.id;
+    RobotNode.findOne({_id: nodeId}, function (err, robotNode) {
+        if(err){
+            res.resFormat.logicState = 1;
+            res.resFormat.data = err;
+            res.json(res.resFormat);
+        }else if (robotNode) {
+            fileHelper.getFileContent(robotNode,null,function (content) {
+                res.resFormat.data = content;
+                res.json(res.resFormat);
+            });
+        } else {
+            res.resFormat.logicState = 1;
+            res.resFormat.msg = "没有找到该节点";
+            res.json(res.resFormat);
+        }
+    });
+
+
+    // fileHelper.getFileContent();
+};
+
 module.exports = actions;

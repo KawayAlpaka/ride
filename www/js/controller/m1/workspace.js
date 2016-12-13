@@ -344,6 +344,18 @@ define(['app','common','jquery'], function(myApp,common,$){
         //     s.setShowContextMenu(true);
         // }
 
+
+        s.refreshFileContent = function (node) {
+            s.api.action.getFileContent(node._id)
+                .success(function (data) {
+                    if(data.logicState == 0){
+                        node.fileContent = data.data;
+                    }else{
+                        
+                    }
+                });
+        };
+
         s.$on("nodeUpdate", function (event, data) {
             if (data._id == s.editingNode._id) {
                 $.extend(s.editingNode, data);

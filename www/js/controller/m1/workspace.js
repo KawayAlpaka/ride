@@ -242,6 +242,9 @@ define(['app','common','jquery'], function(myApp,common,$){
             rows.splice(index,0,{
                 cells:[]
             });
+            rows[index].cells.push({text:""});
+            rows[index].cells.push({text:""});
+            rows[index].cells.push({text:""});
         };
         s.removeRow = function (rows, index) {
             rows.splice(index,1);
@@ -261,6 +264,9 @@ define(['app','common','jquery'], function(myApp,common,$){
             rows.push({
                 cells:[]
             });
+            rows[rows.length - 1].cells.push({text:""});
+            rows[rows.length - 1].cells.push({text:""});
+            rows[rows.length - 1].cells.push({text:""});
         };
         // s.removeRow = function (rows) {
         //     rows.pop();

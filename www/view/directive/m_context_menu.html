@@ -5,11 +5,11 @@
         <div class="item" ng-click="clickItem(modalAction.newResource)">New Resource</div>
     </div>
     <div class="item-group" ng-if="mNode.fileType == 'file'">
-        <div class="item" ng-click="clickItem(modalAction.newTestCase)">New Test Case</div>
+        <div class="item" ng-click="clickItem(modalAction.newTestCase)" ng-if="mNode.type == 'suite'">New Test Case</div>
         <div class="item" ng-click="clickItem(modalAction.newUserKeyword)">New User Keyword</div>
-        <div class="item">New Scalar</div>
-        <div class="item">New List Variable</div>
-        <div class="item">New Directory Variable</div>
+        <!--<div class="item">New Scalar</div>-->
+        <!--<div class="item">New List Variable</div>-->
+        <!--<div class="item">New Directory Variable</div>-->
     </div>
     <div class="item-group" ng-if="mNode.fileType != 'project'">
         <div class="item" ng-click="clickItem('Delete')">Delete</div>

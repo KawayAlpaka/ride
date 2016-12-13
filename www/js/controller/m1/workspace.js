@@ -21,6 +21,45 @@ define(['app','common','jquery'], function(myApp,common,$){
             return result;
         };
 
+        s.nodeTree.getCheckedCaseDebugString = function () {
+            var result = "";
+            var path = s.nodeTree.node.name;
+            var data = {node:s.nodeTree.node,path:path};
+            var bianli = function (data) {
+                data.node.children.forEach(function (node) {
+                    var path2 =  data.path + "." + node.name;
+                    if(node.type == "case" && node.checked == true){
+                        result = result + "--suite\n";
+                        result = result + data.path +"\n";
+                        result = result + "--test\n";
+                        result = result + path2 +"\n";
+                    }else{
+                        bianli({node:node,path:path2});
+                    }
+                });
+            };
+            bianli(data);
+
+            return result;
+        };
+
+        // 分离遍历方案，暂时注释，失败
+        // s.nodeTree.bianli = function (data) {
+        //     data.node.children.forEach(function (node) {
+        //         var path2 =  data.path + "." + node.name;
+        //         if(node.type == "case" && node.checked == true){
+        //             data.result = data.result + "--suite\r\n";
+        //             data.result = data.result + data.path +"\r\n";
+        //             data.result = data.result + "--case\r\n";
+        //             data.result = data.result + path2 +"\r\n";
+        //         }else{
+        //             s.nodeTree.bianli({node:node,path:path2,result:data.result});
+        //         }
+        //     });
+        //     console.log(data.result);
+        // };
+
+
         s.nodeTree.node = s.model.RobotNode.createNew();
         s.nodeTree.node.fn.findById(projectId)
             .success(function () {
@@ -283,6 +322,10 @@ define(['app','common','jquery'], function(myApp,common,$){
                 s.setRightClickElementType("node");
                 s.setContextMenuPoint($event.clientX,$event.clientY);
                 s.setShowContextMenu(true);
+            },
+            clickCaseCheckBox: function (node) {
+                // console.log(node);
+                // console.log(s.nodeTree.getCheckedCaseDebugString());
             }
         };
 
@@ -318,9 +361,12 @@ define(['app','common','jquery'], function(myApp,common,$){
             s.debug.process = [];
             s.debug.result = [];
             mIo.currentSession();
+
+
+
             mIo.debug(projectId,_.filter(s.debug.options,function (option) {
                 return option.ck == true;
-            }));
+            }),s.nodeTree.getCheckedCaseDebugString());
         };
         s.$on("debugResult", function (event, data) {
             s.debug.result = data.result.split("\r\n");

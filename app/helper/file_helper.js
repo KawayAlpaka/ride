@@ -913,4 +913,26 @@ fileHelper.importProject = function (path,cb) {
         });
 };
 
+fileHelper.createArgfile = function (args,cb) {
+    fs.ensureDir(args.outputPath, function(err) {
+        if (err) {
+            cb(err);
+        }else {
+            var fileFullName = args.outputPath + "/argfile.txt";
+            var content = "--outputdir\n";
+            content += args.outputPath + "\n";
+            content += args.checkedCaseDebugString + "\n";
+            fs.writeFile(fileFullName, content , {flag: 'w'}, function (err) {
+                if (err) {
+                    cb(err);
+                } else {
+                    cb(err,fileFullName);
+                }
+            });
+        }
+
+    });
+
+};
+
 module.exports = fileHelper;

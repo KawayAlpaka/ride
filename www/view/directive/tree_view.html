@@ -3,7 +3,7 @@
         <!--<span ng-bind="'('+node.type[0]+ node.fileType[0] +')'"></span>-->
         <span ng-show="node.showState.extended == false && node.fn.canExtend()" ng-click="node.showState.extended = !node.showState.extended">+</span>
         <span ng-show="node.showState.extended == true && node.fn.canExtend()" ng-click="node.showState.extended = !node.showState.extended">-</span>
-        <input type="checkbox" ng-if="node.type == 'case'">
+        <input type="checkbox" ng-if="node.type == 'case'" ng-model="node.checked">
         <img src="img/robot.png" alt="" ng-show="node.type == 'case'">
         <img src="img/cog.png" alt="" ng-show="node.type == 'keyword'">
         <img src="img/page_white.png" alt="" ng-show="node.fileType == 'file' && node.type == 'suite'">

@@ -119,39 +119,46 @@ module.exports.createServer = function (server) {
                             var projectPath = basePath + common.strHelp.space2_(currentUser.name) + "/" +  pNode._id;
                             fileHelper.createProjectFiles(pNode , projectPath , data.options , function () {
                                 var outputPath = systemSettingHelper.settings.outputPath + uuidV4().substring(0,8);
-                                listenHelper.start(function (address) {
-                                    var commadLineStr = 'pybot --outputdir ' + outputPath + " " + "--listener " + process.cwd() + "/app/lib/py/TestRunnerAgent.py" + ":" + address.port + ":False " + projectPath + "/" + common.strHelp.space2_(pNode.name);
-                                    console.log(commadLineStr);
-                                    exec(commadLineStr,{},function(error,stdout,stderr){
-                                        console.log(arguments);
-                                        if(error) {
-                                            console.info('stderr : '+stderr);
-                                            socket.emit('debugResult', { result: stdout });
-                                        }
-                                        if(stdout.length >1){
-                                            console.log('stdout:' + stdout);
-                                            socket.emit('debugResult', { result: stdout });
-                                        } else if(stderr.length > 0) {
-                                            console.log('stderr:' + stderr);
-                                            socket.emit('debugResult', { result: stderr });
+
+                                var args = {
+                                    outputPath:outputPath,
+                                    checkedCaseDebugString:data.checkedCaseDebugString
+                                };
+                                fileHelper.createArgfile(args,function (err, argfilePath) {
+                                    listenHelper.start(function (address) {
+                                        var commadLineStr = 'pybot --argumentfile ' + argfilePath + " " + "--listener " + process.cwd() + "/app/lib/py/TestRunnerAgent.py" + ":" + address.port + ":False " + projectPath + "/" + common.strHelp.space2_(pNode.name);
+                                        console.log(commadLineStr);
+                                        exec(commadLineStr,{},function(error,stdout,stderr){
+                                            console.log(arguments);
+                                            if(error) {
+                                                console.info('stderr : '+stderr);
+                                                socket.emit('debugResult', { result: stdout });
+                                            }
+                                            if(stdout.length >1){
+                                                console.log('stdout:' + stdout);
+                                                socket.emit('debugResult', { result: stdout });
+                                            } else if(stderr.length > 0) {
+                                                console.log('stderr:' + stderr);
+                                                socket.emit('debugResult', { result: stderr });
+                                            }
+                                        });
+                                    },function (data) {
+                                        switch (data[0]){
+                                            case "start_test":
+                                                socket.emit('debugProcess', { result:"Starting test: " + data[1][1].longname });
+                                                break;
+                                            case "end_test":
+                                                socket.emit('debugProcess', { result:"Ending test:   " + data[1][1].longname });
+                                                break;
+                                            case "log_message":
+                                                socket.emit('debugProcess', { result:data[1][0].timestamp + " : " + data[1][0].level + " : "+ data[1][0].message });
+                                                break;
+                                            case "close":
+                                                socket.emit('debugResult', {result: "测试完成，报告地址：" + outputPath + "/report.html"});
+                                                break;
+                                            default:
                                         }
                                     });
-                                },function (data) {
-                                    switch (data[0]){
-                                        case "start_test":
-                                            socket.emit('debugProcess', { result:"Starting test: " + data[1][1].longname });
-                                            break;
-                                        case "end_test":
-                                            socket.emit('debugProcess', { result:"Ending test:   " + data[1][1].longname });
-                                            break;
-                                        case "log_message":
-                                            socket.emit('debugProcess', { result:data[1][0].timestamp + " : " + data[1][0].level + " : "+ data[1][0].message });
-                                            break;
-                                        case "close":
-                                            socket.emit('debugResult', {result: "测试完成，报告地址：" + outputPath + "/report.html"});
-                                            break;
-                                        default:
-                                    }
                                 });
 
                             });

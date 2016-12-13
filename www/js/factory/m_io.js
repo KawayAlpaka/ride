@@ -67,8 +67,8 @@ define(['app','socket','env','common'], function (myApp,io,env,common) {
         mIo.currentNode = function (nodeId) {
             socket.emit('currentNode', { node: nodeId });
         };
-        mIo.debug = function (nodeId,options) {
-            socket.emit('debug', { node: nodeId ,options:options });
+        mIo.debug = function (nodeId, options, checkedCaseDebugString) {
+            socket.emit('debug', {node: nodeId, options: options,checkedCaseDebugString:checkedCaseDebugString});
         };
         mIo.currentSession = function () {
             var session = common.cookieHelp.getCookie("mSession");

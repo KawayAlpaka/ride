@@ -345,13 +345,23 @@ define(['app','common','jquery'], function(myApp,common,$){
         // }
 
 
-        s.refreshFileContent = function (node) {
+        s.pullContent = function (node) {
             s.api.action.getFileContent(node._id)
                 .success(function (data) {
                     if(data.logicState == 0){
                         node.fileContent = data.data;
                     }else{
-                        
+
+                    }
+                });
+        };
+        s.updateContent = function (node) {
+            s.api.action.updateNodeByContent(node._id, {content: node.fileContent})
+                .success(function (data) {
+                    if (data.logicState == 0) {
+                        s.nodeTree.findById(node.parent).fn.getChildren();
+                    } else {
+
                     }
                 });
         };

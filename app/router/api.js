@@ -64,6 +64,7 @@ router.get('/actions/runProject/:id', api.users.requireLogin, api.actions.runPro
 router.get('/actions/downloadProjectFiles/:id', api.users.requireLogin, api.actions.downloadProjectFiles);
 router.post('/actions/importProject/:id', api.users.requireLogin, api.actions.importProject);
 router.get('/actions/getFileContent/:id', api.users.requireLogin, api.actions.getFileContent);
+router.put('/actions/updateNodeByContent/:id', api.users.requireLogin, api.actions.updateNodeByContent);
 
 router.get('/projects/my', api.users.requireLogin, api.projects.myProjects);
 router.get('/projects/my/:relate', api.users.requireLogin, api.projects.myRelateProjects);

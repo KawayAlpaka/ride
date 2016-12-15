@@ -11,11 +11,12 @@
 
         <div class="text-edit-panel" ng-show="currentPanel == 'text_edit'">
             <div>
-                <button type="button" class="btn btn-success" ng-click="refreshFileContent(editingNode)" ng-disabled="editingNode.fileType != 'file'" >refresh</button>
+                <button type="button" class="btn btn-success" ng-click="pullContent(editingNode)" ng-disabled="editingNode.fileType != 'file'" >pull</button>
+                <button type="button" class="btn btn-danger" ng-click="updateContent(editingNode)" ng-disabled="editingNode.fileType != 'file'" >update</button>
                 <span ng-if="editingNode.fileType != 'file'">请选择一个Suite或Resource</span>
             </div>
             <div>
-                <textarea class="file-content" data-ng-model="editingNode.fileContent" readonly></textarea>
+                <textarea class="file-content" data-ng-model="editingNode.fileContent"></textarea>
             </div>
         </div>
 

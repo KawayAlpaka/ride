@@ -159,4 +159,30 @@ actions.getFileContent = function (req, res) {
     // fileHelper.getFileContent();
 };
 
+actions.updateNodeByContent = function (req, res) {
+    var nodeId = req.params.id;
+    RobotNode.findOne({_id: nodeId}, function (err, oldNode) {
+        if(err){
+            res.resFormat.logicState = 1;
+            res.resFormat.data = err;
+            res.json(res.resFormat);
+        }else if (oldNode) {
+            var lines = fileHelper.content2contentLines(req.body.content);
+            var newNode = fileHelper.contentLines2Node(lines,oldNode.name);
+            newNode.parent = oldNode.parent;
+            fileHelper.saveNodeWalk(newNode,function (err, node) {
+                res.resFormat.data = node;
+                res.resFormat.msg = "ok";
+                res.json(res.resFormat);
+                oldNode.parent = null;
+                oldNode.save();
+            });
+        } else {
+            res.resFormat.logicState = 1;
+            res.resFormat.msg = "没有找到该节点";
+            res.json(res.resFormat);
+        }
+    });
+};
+
 module.exports = actions;

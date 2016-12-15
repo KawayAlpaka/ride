@@ -590,7 +590,16 @@ var dealSettings = function (fileNode,lineStr) {
     }
 };
 
-var contentLines2Node = function (arr,nodeName) {
+fileHelper.content2contentLines = function (content) {
+    var lines = content.split('\n');
+    var result = [];
+    lines.forEach(function (line) {
+        result.push(line.replace("\r",""))
+    });
+    return result;
+};
+
+fileHelper.contentLines2Node = function (arr,nodeName) {
     var fileNode;
 
     // 判断是套件还是资源
@@ -848,7 +857,7 @@ var walkDir =  function(path,node) {
                             }else{
                                 //处理文件
                                 fileHelper.readLines(tmpPath,function (arr) {
-                                    var fileNode = contentLines2Node(arr,item.replace(".txt",""));
+                                    var fileNode = fileHelper.contentLines2Node(arr,item.replace(".txt",""));
                                     fileNode.parent = node._id;
                                     node.children.push(fileNode);
 
@@ -874,12 +883,7 @@ var walkDir =  function(path,node) {
 };
 
 var walkNode = function (node) {
-    console.log(node.name);
-    console.log(node.children.length);
-    console.log(node);
-
     var deferred = Q.defer();
-
     node.save(function (err) {
         var len = node.children.length;
         var willResolve = function () {
@@ -902,9 +906,14 @@ var walkNode = function (node) {
             });
         }
     });
-
     return deferred.promise;
+};
 
+fileHelper.saveNodeWalk = function (node,cb) {
+    walkNode(node)
+        .then(function (node) {
+            cb(null,node);
+        })
 };
 
 

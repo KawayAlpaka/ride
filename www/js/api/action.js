@@ -27,6 +27,14 @@ define([], function () {
             type : 'json'
         });
     };
+    api.updateNodeByContent = function (id,data) {
+        return mHttp({
+            url : '/api/actions/updateNodeByContent/'+id,
+            method:'PUT',
+            type : 'json',
+            data: data
+        });
+    };
 
     return api;
 });

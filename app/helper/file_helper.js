@@ -590,7 +590,221 @@ var dealSettings = function (fileNode,lineStr) {
     }
 };
 
+var contentLines2Node = function (arr,nodeName) {
+    var fileNode;
 
+    // 判断是套件还是资源
+    if(_.contains(arr,"*** Test Cases ***")){
+        fileNode = new RobotNode({name:nodeName,type:"suite",fileType:"file",fileFormat:"txt"});
+    }else{
+        fileNode = new RobotNode({name:nodeName,type:"resource",fileType:"file",fileFormat:"txt"});
+    }
+
+    fileNode.children = [];
+    // node.children.push(fileNode);
+
+    //开始逐行解析文件
+    var typeFlag = "";
+    var preVariables;
+    var currentNode = {};
+
+    var dealCase = function (lineStr,nodeType,rObj) {
+        if(lineStr.trim().length == 0){
+            // 空字符串基本就是结束标记，不处理
+        }else{
+            var strArr = lineStr.split("    ");
+            for(var tempIndex in strArr ){
+                strArr[tempIndex] = strArr[tempIndex].trim();
+            }
+            // console.log(strArr);
+            if(strArr[0].trim().length != 0){
+                // console.log(strArr);
+                rObj[nodeType] = new RobotNode({name:strArr[0].trim(),type:nodeType,fileType:"content",parent:fileNode._id});
+                rObj[nodeType].children = [];
+                fileNode.children.push(rObj[nodeType]);
+                // rObj[nodeType].form.rows = new Array();
+                rObj[nodeType].form = extend({},{rows:[]},true);  //解决一个匪夷所思的问题，后续有待研究
+            }else {
+                strArr.splice(0,1);
+                var  getValueComment = function (arr) {
+                    if(arr.length > 1){
+                        return {
+                            value:arr[0].trim(),
+                            comment:arr[1].trim().replace("# ","")
+                        };
+                    }else if(arr.length = 1){
+                        if(arr[0].trim()[0] == "#"){
+                            return{
+                                comment:arr[0].trim().replace("# ","")
+                            };
+                        }else {
+                            return{
+                                value:arr[0].trim()
+                            };
+                        }
+                    }else {
+                        return {};
+                    }
+                };
+                switch (strArr[0]){
+                    case "[Documentation]":
+                        rObj[nodeType].documentation = strArr[1];
+                        break;
+                    case "[Tags]":
+                        strArr.splice(0,1);
+                        strArr.forEach(function (str) {
+                            rObj[nodeType].tags.push({
+                                text:str
+                            });
+                        });
+                        break;
+                    case "[Setup]":
+                        strArr.splice(0,1);
+                        rObj[nodeType]["setup"] = getValueComment(strArr);
+                        break;
+                    case "[Template]":
+                        strArr.splice(0,1);
+                        rObj[nodeType]["template"] = getValueComment(strArr);
+                        break;
+                    case "[Timeout]":
+                        strArr.splice(0,1);
+                        rObj[nodeType]["timeout"] = getValueComment(strArr);
+                        break;
+                    case "[Teardown]":
+                        strArr.splice(0,1);
+                        rObj[nodeType]["teardown"] = getValueComment(strArr);
+                        break;
+                    case "[Return]":
+                        strArr.splice(0,1);
+                        rObj[nodeType]["returnValue"] = getValueComment(strArr);
+                        break;
+                    default:
+                        var cells = [];
+                        strArr.forEach(function (str) {
+                            cells.push({
+                                text:str
+                            })
+                        });
+                        rObj[nodeType].form.rows.push({
+                            cells:cells
+                        });
+                        break;
+                }
+            }
+        }
+    };
+    arr.forEach(function (lineStr) {
+        switch (lineStr) {
+            case "*** Settings ***":
+                typeFlag = "Settings";
+                break;
+            case "*** Variables ***":
+                typeFlag = "Variables";
+                break;
+            case "*** Test Cases ***":
+                typeFlag = "Test Cases";
+                break;
+            case "*** Keywords ***":
+                typeFlag = "Keywords";
+                break;
+            default:
+                switch (typeFlag) {
+                    case "Settings":
+                        dealSettings(fileNode,lineStr);
+                        break;
+                    case "Variables":
+                        if(lineStr.trim().length == 0){
+                            // 空字符串基本就是结束标记，不处理
+                        }else{
+                            var strArr = lineStr.split("    ");
+                            for(var tempIndex in strArr ){
+                                strArr[tempIndex] = strArr[tempIndex].trim();
+                            }
+                            strArr = _.filter(strArr,function (str) {
+                                return str.trim().length > 0;
+                            });
+                            switch (strArr[0][0]){
+                                case "$":
+                                    var tempObj = {
+                                        type:"Scalar",
+                                        name:strArr[0],
+                                        comment:strArr[2]
+                                    };
+                                    if(strArr[1] == "\\"){
+                                        tempObj.stringValue = "";
+                                    }else {
+                                        tempObj.stringValue = strArr[1];
+                                    }
+                                    fileNode.variables.push(tempObj);
+                                    preVariables = tempObj;
+                                    break;
+                                case "@":
+                                    var tempObj = {
+                                        type:"List",
+                                        name:strArr[0],
+                                        arrayValue:[]
+                                    };
+                                    strArr.splice(0,1);
+                                    strArr.forEach(function (str) {
+                                        tempObj.arrayValue.push({
+                                            text:str
+                                        });
+                                    });
+                                    fileNode.variables.push(tempObj);
+                                    preVariables = tempObj;
+                                    break;
+                                case "&":
+                                    var tempObj = {
+                                        type:"Dict",
+                                        name:strArr[0],
+                                        arrayValue:[]
+                                    };
+                                    strArr.splice(0,1);
+                                    strArr.forEach(function (str) {
+                                        tempObj.arrayValue.push({
+                                            text:str
+                                        });
+                                    });
+                                    fileNode.variables.push(tempObj);
+                                    preVariables = tempObj;
+                                    break;
+                                case ".":
+                                    strArr.splice(0,1);
+                                    strArr.forEach(function (str) {
+                                        if(str[0] == "#"){
+                                            preVariables.comment = str.replace("# ","");
+                                        }else{
+                                            if(str == "\\"){
+                                                preVariables.arrayValue.push({
+                                                    text:""
+                                                });
+                                            }else{
+                                                preVariables.arrayValue.push({
+                                                    text:str
+                                                });
+                                            }
+                                        }
+                                    });
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+                    case "Test Cases":
+                        dealCase(lineStr,"case",currentNode);
+                        break;
+                    case "Keywords":
+                        dealCase(lineStr,"keyword",currentNode);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+        }
+    });
+    return fileNode;
+};
 
 var walkDir =  function(path,node) {
     console.log("walkDir");
@@ -633,222 +847,11 @@ var walkDir =  function(path,node) {
                                 willResolve();
                             }else{
                                 //处理文件
-                                // var fileNode = new RobotNode({name:item,type:"suite",fileType:"file",fileFormat:"txt",parent:node._id});
-                                // fileNode.children = [];
-                                // node.children.push(fileNode);
                                 fileHelper.readLines(tmpPath,function (arr) {
-                                    var fileNode;
-
-                                    // 判断是套件还是资源
-                                    if(_.contains(arr,"*** Test Cases ***")){
-                                        fileNode = new RobotNode({name:item.replace(".txt",""),type:"suite",fileType:"file",fileFormat:"txt",parent:node._id});
-                                    }else{
-                                        fileNode = new RobotNode({name:item.replace(".txt",""),type:"resource",fileType:"file",fileFormat:"txt",parent:node._id});
-                                    }
-
-                                    fileNode.children = [];
+                                    var fileNode = contentLines2Node(arr,item.replace(".txt",""));
+                                    fileNode.parent = node._id;
                                     node.children.push(fileNode);
 
-                                    //开始逐行解析文件
-                                    var typeFlag = "";
-                                    var preVariables;
-                                    var currentNode = {};
-
-                                    var dealCase = function (lineStr,nodeType,rObj) {
-                                        if(lineStr.trim().length == 0){
-                                            // 空字符串基本就是结束标记，不处理
-                                        }else{
-                                            var strArr = lineStr.split("    ");
-                                            for(var tempIndex in strArr ){
-                                                strArr[tempIndex] = strArr[tempIndex].trim();
-                                            }
-                                            // console.log(strArr);
-                                            if(strArr[0].trim().length != 0){
-                                                // console.log(strArr);
-                                                rObj[nodeType] = new RobotNode({name:strArr[0].trim(),type:nodeType,fileType:"content",parent:fileNode._id});
-                                                rObj[nodeType].children = [];
-                                                fileNode.children.push(rObj[nodeType]);
-                                                // rObj[nodeType].form.rows = new Array();
-                                                rObj[nodeType].form = extend({},{rows:[]},true);  //解决一个匪夷所思的问题，后续有待研究
-                                            }else {
-                                                strArr.splice(0,1);
-                                                var  getValueComment = function (arr) {
-                                                    if(arr.length > 1){
-                                                        return {
-                                                            value:arr[0].trim(),
-                                                            comment:arr[1].trim().replace("# ","")
-                                                        };
-                                                    }else if(arr.length = 1){
-                                                        if(arr[0].trim()[0] == "#"){
-                                                            return{
-                                                                comment:arr[0].trim().replace("# ","")
-                                                            };
-                                                        }else {
-                                                            return{
-                                                                value:arr[0].trim()
-                                                            };
-                                                        }
-                                                    }else {
-                                                        return {};
-                                                    }
-                                                };
-                                                switch (strArr[0]){
-                                                    case "[Documentation]":
-                                                        rObj[nodeType].documentation = strArr[1];
-                                                        break;
-                                                    case "[Tags]":
-                                                        strArr.splice(0,1);
-                                                        strArr.forEach(function (str) {
-                                                            rObj[nodeType].tags.push({
-                                                                text:str
-                                                            });
-                                                        });
-                                                        break;
-                                                    case "[Setup]":
-                                                        strArr.splice(0,1);
-                                                        rObj[nodeType]["setup"] = getValueComment(strArr);
-                                                        break;
-                                                    case "[Template]":
-                                                        strArr.splice(0,1);
-                                                        rObj[nodeType]["template"] = getValueComment(strArr);
-                                                        break;
-                                                    case "[Timeout]":
-                                                        strArr.splice(0,1);
-                                                        rObj[nodeType]["timeout"] = getValueComment(strArr);
-                                                        break;
-                                                    case "[Teardown]":
-                                                        strArr.splice(0,1);
-                                                        rObj[nodeType]["teardown"] = getValueComment(strArr);
-                                                        break;
-                                                    case "[Return]":
-                                                        strArr.splice(0,1);
-                                                        rObj[nodeType]["returnValue"] = getValueComment(strArr);
-                                                        break;
-                                                    default:
-                                                        var cells = [];
-                                                        strArr.forEach(function (str) {
-                                                            cells.push({
-                                                                text:str
-                                                            })
-                                                        });
-                                                        rObj[nodeType].form.rows.push({
-                                                            cells:cells
-                                                        });
-                                                        break;
-                                                }
-                                            }
-                                        }
-                                    };
-                                    arr.forEach(function (lineStr) {
-                                        switch (lineStr) {
-                                            case "*** Settings ***":
-                                                typeFlag = "Settings";
-                                                break;
-                                            case "*** Variables ***":
-                                                typeFlag = "Variables";
-                                                break;
-                                            case "*** Test Cases ***":
-                                                typeFlag = "Test Cases";
-                                                break;
-                                            case "*** Keywords ***":
-                                                typeFlag = "Keywords";
-                                                break;
-                                            default:
-                                                switch (typeFlag) {
-                                                    case "Settings":
-                                                        dealSettings(fileNode,lineStr);
-                                                        break;
-                                                    case "Variables":
-                                                        if(lineStr.trim().length == 0){
-                                                            // 空字符串基本就是结束标记，不处理
-                                                        }else{
-                                                            var strArr = lineStr.split("    ");
-                                                            for(var tempIndex in strArr ){
-                                                                strArr[tempIndex] = strArr[tempIndex].trim();
-                                                            }
-                                                            strArr = _.filter(strArr,function (str) {
-                                                                return str.trim().length > 0;
-                                                            });
-                                                            switch (strArr[0][0]){
-                                                                case "$":
-                                                                    var tempObj = {
-                                                                        type:"Scalar",
-                                                                        name:strArr[0],
-                                                                        comment:strArr[2]
-                                                                    };
-                                                                    if(strArr[1] == "\\"){
-                                                                        tempObj.stringValue = "";
-                                                                    }else {
-                                                                        tempObj.stringValue = strArr[1];
-                                                                    }
-                                                                    fileNode.variables.push(tempObj);
-                                                                    preVariables = tempObj;
-                                                                    break;
-                                                                case "@":
-                                                                    var tempObj = {
-                                                                        type:"List",
-                                                                        name:strArr[0],
-                                                                        arrayValue:[]
-                                                                    };
-                                                                    strArr.splice(0,1);
-                                                                    strArr.forEach(function (str) {
-                                                                        tempObj.arrayValue.push({
-                                                                            text:str
-                                                                        });
-                                                                    });
-                                                                    fileNode.variables.push(tempObj);
-                                                                    preVariables = tempObj;
-                                                                    break;
-                                                                case "&":
-                                                                    var tempObj = {
-                                                                        type:"Dict",
-                                                                        name:strArr[0],
-                                                                        arrayValue:[]
-                                                                    };
-                                                                    strArr.splice(0,1);
-                                                                    strArr.forEach(function (str) {
-                                                                        tempObj.arrayValue.push({
-                                                                            text:str
-                                                                        });
-                                                                    });
-                                                                    fileNode.variables.push(tempObj);
-                                                                    preVariables = tempObj;
-                                                                    break;
-                                                                case ".":
-                                                                    strArr.splice(0,1);
-                                                                    strArr.forEach(function (str) {
-                                                                        if(str[0] == "#"){
-                                                                            preVariables.comment = str.replace("# ","");
-                                                                        }else{
-                                                                            if(str == "\\"){
-                                                                                preVariables.arrayValue.push({
-                                                                                    text:""
-                                                                                });
-                                                                            }else{
-                                                                                preVariables.arrayValue.push({
-                                                                                    text:str
-                                                                                });
-                                                                            }
-                                                                        }
-                                                                    });
-                                                                    break;
-                                                                default:
-                                                                    break;
-                                                            }
-                                                        }
-                                                        break;
-                                                    case "Test Cases":
-                                                        dealCase(lineStr,"case",currentNode);
-                                                        break;
-                                                    case "Keywords":
-                                                        dealCase(lineStr,"keyword",currentNode);
-                                                        break;
-                                                    default:
-                                                        break;
-                                                }
-                                                break;
-                                        }
-                                    });
                                     // console.log(fileNode);
                                     // console.log(currentNode.case.form.rows.length);
                                     // console.log(currentNode.keyword.form.rows.length);

@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var express = require('express');
 var cookieParser = require('cookie-parser');
 var bodyParser = require("body-parser");
+var compress = require('compression');
 var app = express();
 var env = require("./config/env");
 
@@ -27,7 +28,7 @@ mongoose.connection.on('connected', function () {
 
     var routerApi = require('./app/router/api');
 
-
+    app.use(compress());
     app.use(express.static('www'));
     app.use(express.static('temp'));
     app.use(cookieParser());
